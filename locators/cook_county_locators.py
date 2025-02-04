@@ -11,3 +11,7 @@ class CookCountyLocator:
     VIEW_BUTTON = (By.XPATH, "(//a[text()='View'])")
     VIEW_DOCUMENT = (By.XPATH, "//a[contains(text(), 'View Document in New Window')]")
     BACK_BUTTON = (By.XPATH, "//a[text() = ' Back']")
+    ADDRESS_DETAILS = (By.XPATH, "(//*[contains(text(), 'Viewing')]//following::tbody/tr/td)[6]")
+    DOCUMENT_NUMBER = (By.XPATH, "(//*[contains(text(), 'Viewing')]//following::tbody/tr/td)[1]")
+    GRANTEES_NAME = (By.XPATH, "//*[text()='Grantees']//following::a[contains(@href, 'ResultByName')]")
+    PROPERTY_INDEX_NUMBER = (By.XPATH, "//*[@id = 'result']//../tbody/tr/td/a")

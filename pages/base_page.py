@@ -5,7 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from datetime import datetime, timedelta
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 from difflib import SequenceMatcher
 import os, pdfplumber, time, requests, pytesseract, pandas as pd, urllib.parse
 
@@ -45,7 +45,7 @@ class BasePage:
             raise ValueError("Invalid select_type. Choose 'visible_text', 'index', or 'value'.")
 
     def send_date(self, locator):
-        today_date = (datetime.now() - timedelta(days=abs(2))).strftime("%m/%d/%Y")
+        today_date = (datetime.now() - timedelta(days=abs(19))).strftime("%m/%d/%Y")
         self.wait.until(EC.visibility_of_element_located(locator))
         # Clear the existing value before sending the new date
         input_field = self.driver.find_element(*locator)
@@ -219,6 +219,50 @@ class BasePage:
 
         except Exception as e:
             print(f"Error in extract_and_store_names method: {e}")
+
+    @staticmethod
+    def flatten_and_convert(value):
+        if isinstance(value, list):
+            if all(isinstance(i, list) for i in value):  # If it's a list of lists, flatten it
+                value = [item for sublist in value for item in sublist]
+            return ", ".join(map(str, value))  # Convert list to comma-separated string
+        return value  # Return as is if not a list
+
+    def create_or_update_excel(self, data_map, folder_path="propertyDetails"):
+        try:
+            current_date = datetime.now().strftime("%Y-%m-%d")
+            file_name = f"PropertyDetails_{current_date}.xlsx"
+            file_path = os.path.join(folder_path, file_name)
+
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
+
+            for key, value in data_map.items():
+                data_map[key] = self.flatten_and_convert(value)
+
+            if os.path.exists(file_path):
+                print(f"File already exists. Updating file: {file_path}")
+                wb = load_workbook(file_path)
+                ws = wb.active
+
+                df = pd.DataFrame([list(data_map.values())], columns=data_map.keys())
+                ws.append(list(data_map.values()))
+
+                wb.save(file_path)
+
+            else:
+                print(f"Creating new file: {file_path}")
+                wb = Workbook()
+                ws = wb.active
+
+                ws.append(list(data_map.keys()))
+                ws.append(list(data_map.values()))
+                wb.save(file_path)
+
+            print(f"Data successfully written to: {file_path}")
+
+        except Exception as e:
+            print(f"Error creating or updating Excel file: {e}")
 
     # def search_and_store_phone_numbers(self, excel_file):
     #     try:

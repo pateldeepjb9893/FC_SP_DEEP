@@ -1,4 +1,6 @@
 import os, pdfplumber
+
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 from selenium.webdriver.support.wait import WebDriverWait
@@ -24,15 +26,25 @@ class CookCountyPage(BasePage):
         view_pdf_elements = self.driver.find_elements(*CookCountyLocator.VIEW_BUTTON)
 
         for element in view_pdf_elements:
+            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
             element.click()
-            time.sleep(7)
-            self.click(CookCountyLocator.VIEW_DOCUMENT)
-            try:
-                self.extract_pdf_text_from_new_window()
-            except Exception as e:
-                print(f"Error processing page")
-                continue
-            self.driver.switch_to.default_content()
+            time.sleep(3)
+            details_map = {}
+            all_names = []
+
+            grantee_names_element = self.driver.find_elements(*CookCountyLocator.GRANTEES_NAME)
+            names = [element.text.strip() for element in grantee_names_element if element.text.strip()]
+            all_names.append(names)
+
+            address = self.driver.find_element(*CookCountyLocator.ADDRESS_DETAILS).text.strip()
+            documentNumber = self.driver.find_element(*CookCountyLocator.DOCUMENT_NUMBER).text.strip()
+
+            details_map["Address"] = address
+            details_map["DocumentNumber"] = documentNumber
+            details_map["Names"] = all_names
+            pin = self.get_text(CookCountyLocator.PROPERTY_INDEX_NUMBER)
+            details_map["PropertyIndexNumber"] = pin
+            self.create_or_update_excel(details_map)
             self.click(CookCountyLocator.BACK_BUTTON)
 
     def extract_pdf_data(self):
