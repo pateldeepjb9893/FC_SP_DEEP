@@ -1,3 +1,7 @@
+import mimetypes
+import smtplib
+from email.message import EmailMessage
+
 from selenium.webdriver import ActionChains
 from locators.vane_county_locators import VaneCountyLocator
 from selenium.webdriver.common.by import By
@@ -261,8 +265,58 @@ class BasePage:
 
             print(f"Data successfully written to: {file_path}")
 
+            try:
+                self.send_email_with_attachment()
+            except Exception as e:
+                print(f"Error sending email with file: {e}")
+
         except Exception as e:
             print(f"Error creating or updating Excel file: {e}")
+
+    def sending_email(self):
+        try:
+            self.send_email_with_attachment()
+        except Exception as e:
+            print(f"Error sending email with file: {e}")
+
+    @staticmethod
+    def send_email_with_attachment():
+        sender_email = "pateldeep9893@gmail.com"  # Replace with your Gmail
+        receiver_email = "pateldeepjb9893@gmail.com"  # Replace with recipient email
+        password = "rldm ezgz gdcf pkdu"
+
+        folder_path = "propertyDetails"
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        file_name = f"PropertyDetails_{current_date}.xlsx"
+        file_path = os.path.join(folder_path, file_name)
+
+        if not os.path.exists(file_path):
+            print(f"No file found for today: {file_name}")
+            return
+
+        msg = EmailMessage()
+        msg["Subject"] = f"Property Details - {current_date}"
+        msg["From"] = sender_email
+        msg["To"] = receiver_email
+        msg.set_content(f"Attached is the Property Details report for {current_date}.")
+
+        ctype, encoding = mimetypes.guess_type(file_path)
+        if ctype is None or encoding is not None:
+            ctype = "application/octet-stream"
+
+        maintype, subtype = ctype.split("/", 1)
+
+        with open(file_path, "rb") as file:
+            msg.add_attachment(file.read(), maintype=maintype, subtype=subtype, filename=file_name)
+
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(sender_email, password)
+                server.send_message(msg)
+                print(f"Email sent successfully to {receiver_email} with attachment {file_name}")
+
+        except Exception as e:
+            print(f"Error sending email: {e}")
 
     # def search_and_store_phone_numbers(self, excel_file):
     #     try:

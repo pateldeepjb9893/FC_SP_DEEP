@@ -46,6 +46,7 @@ class CookCountyPage(BasePage):
             details_map["PropertyIndexNumber"] = pin
             self.create_or_update_excel(details_map)
             self.click(CookCountyLocator.BACK_BUTTON)
+        self.sending_email()
 
     def extract_pdf_data(self):
         return self.extract_pdf_text_from_new_window()
