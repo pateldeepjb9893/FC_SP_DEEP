@@ -10,7 +10,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from datetime import datetime, timedelta
 from openpyxl import load_workbook, Workbook
-from difflib import SequenceMatcher
 import os, pdfplumber, time, requests, pytesseract, pandas as pd, urllib.parse
 
 
@@ -190,11 +189,9 @@ class BasePage:
 
         print(f"Updated Excel file with search URLs: {excel_file}")
 
-    def scroll_to_element(self, locator):
-        element = self.driver.find_element(*locator)
+    def scroll_to_element(self, element):
         self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element)
         ActionChains(self.driver).move_to_element(element).perform()
-        print(f"Scrolled to element: {locator}")
 
     def extract_and_store_names(self, excel_file):
         try:
@@ -265,11 +262,6 @@ class BasePage:
 
             print(f"Data successfully written to: {file_path}")
 
-            try:
-                self.send_email_with_attachment()
-            except Exception as e:
-                print(f"Error sending email with file: {e}")
-
         except Exception as e:
             print(f"Error creating or updating Excel file: {e}")
 
@@ -282,7 +274,7 @@ class BasePage:
     @staticmethod
     def send_email_with_attachment():
         sender_email = "pateldeep9893@gmail.com"  # Replace with your Gmail
-        receiver_email = "pateldeepjb9893@gmail.com"  # Replace with recipient email
+        receiver_email = "patelproperties9893@gmail.com"  # Replace with recipient email
         password = "rldm ezgz gdcf pkdu"
 
         folder_path = "propertyDetails"

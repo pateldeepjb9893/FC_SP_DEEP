@@ -1,9 +1,3 @@
-import os, pdfplumber
-
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-
-from selenium.webdriver.support.wait import WebDriverWait
 from locators.cook_county_locators import CookCountyLocator
 from pages.base_page import BasePage
 import time
@@ -26,7 +20,7 @@ class CookCountyPage(BasePage):
         view_pdf_elements = self.driver.find_elements(*CookCountyLocator.VIEW_BUTTON)
 
         for element in view_pdf_elements:
-            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
+            self.scroll_to_element(element)
             element.click()
             time.sleep(3)
             details_map = {}
